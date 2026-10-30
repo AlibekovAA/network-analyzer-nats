@@ -1,4 +1,3 @@
-from io import BytesIO
 from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, UploadFile, Depends
@@ -6,7 +5,7 @@ from fastapi.responses import HTMLResponse
 
 from app.backend.models.analysis import NetworkAnalysisResult
 from app.backend.network_analyzer import NetworkAnalyzer
-from app.backend.config import MAX_FILE_SIZE
+from app.backend.config import CHUNK_SIZE, MAX_FILE_SIZE
 from app.backend.log import get_logger
 from app.backend.dependencies import get_analyzer
 
@@ -37,17 +36,18 @@ async def analyze_network_packets(
         logger.warning(f"[API] Invalid file type: {file.filename}")
         raise HTTPException(status_code=400, detail="Only PCAP/PCAPNG files are supported")
 
-    content = await file.read()
-    if len(content) > MAX_FILE_SIZE:
-        logger.warning(f"[API] File size exceeds limit: {len(content)} bytes")
-        raise HTTPException(
-            status_code=400,
-            detail=f"File size exceeds {MAX_FILE_SIZE // (1024*1024)}MB limit"
-        )
+    file_size = 0
+    while chunk := await file.read(CHUNK_SIZE):
+        file_size += len(chunk)
+        if file_size > MAX_FILE_SIZE:
+            raise HTTPException(
+                status_code=413,
+                detail=f"File size exceeds {MAX_FILE_SIZE // (1024*1024)}MB limit"
+            )
+    await file.seek(0)
 
-    pcap_buffer = BytesIO(content)
     try:
-        return await analyzer.analyze_pcap(pcap_buffer)
+        return await analyzer.analyze_pcap(file.file)
     except Exception as e:
         logger.error(f"[API] Analysis failed: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Packet analysis failed") from e

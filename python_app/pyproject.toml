@@ -1,0 +1,43 @@
+[project]
+name = "network-packet-analyzer"
+version = "0.1.0"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "fastapi",
+    "nats-py",
+    "uvicorn[standard]",
+    "python-multipart",
+    "pydantic",
+    "pytz",
+]
+
+[dependency-groups]
+dev = ["mypy", "types-pytz", "ruff"]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+target-version = "py313"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
+
+[tool.mypy]
+python_version = "3.13"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+module = "nats.*"
+ignore_missing_imports = true

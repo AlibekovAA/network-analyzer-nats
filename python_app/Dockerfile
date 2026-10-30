@@ -1,4 +1,6 @@
-FROM python:3.12-slim AS base
+FROM python:3.13-slim AS base
+
+COPY --from=ghcr.io/astral-sh/uv:0.11.28 /uv /bin/uv
 
 WORKDIR /app
 
@@ -10,14 +12,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --no-cache-dir -r requirements.txt
+ENV UV_PROJECT_ENVIRONMENT=/opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+COPY pyproject.toml uv.lock ./
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen
 
 FROM base AS production
 
 COPY app app/
-COPY mypy.ini .
 
 RUN mypy app/
 

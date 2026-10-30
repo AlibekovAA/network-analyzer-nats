@@ -4,18 +4,15 @@ import (
 	"os"
 
 	"go_app/internal/domain"
-	"go_app/internal/infrastructure/logger"
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/pcap"
 )
 
-type Analyzer struct {
-	log *logger.Logger
-}
+type Analyzer struct{}
 
-func New(log *logger.Logger) *Analyzer {
-	return &Analyzer{log: log}
+func New() *Analyzer {
+	return &Analyzer{}
 }
 
 func (a *Analyzer) Analyze(data []byte) (*domain.AnalysisResult, error) {

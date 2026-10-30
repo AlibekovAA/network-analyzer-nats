@@ -2,6 +2,7 @@ package analyzer
 
 import (
 	"encoding/json"
+	"time"
 
 	"go_app/internal/domain"
 )
@@ -15,7 +16,9 @@ func (s *Service) HandleStart(msg []byte) error {
 		return err
 	}
 
-	s.data[start.AnalysisID] = make([]byte, 0)
+	s.mu.Lock()
+	s.data[start.AnalysisID] = &analysisState{updatedAt: time.Now()}
+	s.mu.Unlock()
 	s.log.Printf("Starting analysis ID: %s, expecting %d chunks", start.AnalysisID, start.TotalChunks)
 	return nil
 }
@@ -31,11 +34,19 @@ func (s *Service) HandleChunk(msg []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	if chunk.ChunkNumber == 0 {
-		s.data[chunk.AnalysisID] = decodedData
-	} else {
-		s.data[chunk.AnalysisID] = append(s.data[chunk.AnalysisID], decodedData...)
+	s.mu.Lock()
+	state := s.data[chunk.AnalysisID]
+	if state == nil {
+		state = &analysisState{}
+		s.data[chunk.AnalysisID] = state
 	}
+	if chunk.ChunkNumber == 0 {
+		state.content = decodedData
+	} else {
+		state.content = append(state.content, decodedData...)
+	}
+	state.updatedAt = time.Now()
+	s.mu.Unlock()
 
 	s.log.Printf("Processed chunk %d/%d for analysis ID: %s",
 		chunk.ChunkNumber+1, chunk.TotalChunks, chunk.AnalysisID)
@@ -51,13 +62,24 @@ func (s *Service) HandleFinish(msg []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	data := s.data[finish.AnalysisID]
+	s.mu.Lock()
+	state := s.data[finish.AnalysisID]
+	var data []byte
+	if state != nil {
+		state.updatedAt = time.Now()
+		data = state.content
+	}
+	s.mu.Unlock()
 	result, err := s.analyzer.Analyze(data)
 	if err != nil {
 		return nil, err
 	}
 
-	delete(s.data, finish.AnalysisID)
+	s.mu.Lock()
+	if s.data[finish.AnalysisID] == state {
+		delete(s.data, finish.AnalysisID)
+	}
+	s.mu.Unlock()
 	s.log.Printf("Analysis completed for ID: %s, processed %d packets",
 		finish.AnalysisID, len(result.Packets))
 

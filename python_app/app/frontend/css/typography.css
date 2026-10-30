@@ -1,69 +1,19 @@
 .animated-title {
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: calc(var(--space-unit) * 2);
-    opacity: 0;
-    animation: fadeInDown 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    will-change: transform, opacity;
+    max-width: 18ch;
+    font: 500 clamp(1.8rem, 4.5vw, 3.2rem)/1.12 Georgia, 'Times New Roman', serif;
+    letter-spacing: -0.035em;
+    overflow-wrap: break-word;
+    text-wrap: balance;
 }
-
-.animated-title span {
-    font: bold clamp(1rem, 3vw, 1.8rem)/1.2 "Segoe UI", sans-serif;
-    display: inline-block;
-    background: linear-gradient(90deg, var(--color-white), var(--color-background), var(--color-white));
-    background-size: 200% auto;
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 30px var(--color-shimmer);
-    word-spacing: 0.2em;
-    letter-spacing: 0.05em;
-    animation: shine 3s linear infinite;
-    will-change: background-position;
-}
-
-.animated-title span > span {
-    margin: 0 0.1em;
-    display: inline-block;
-    opacity: 0;
-    filter: blur(4px);
-    transform: translateY(-10px);
-    animation: fadeInBlur 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    animation-delay: calc(0.05s * var(--char-index, 1));
-    will-change: transform, opacity, filter;
-}
-
+.title-ready { animation: title-entry 700ms var(--ease-out) both; }
 .subtitle {
-    font-size: clamp(0.8rem, 1.5vw, 1rem);
-    opacity: 0;
-    transform: translateY(20px);
-    animation: fadeInUp 1s ease 0.5s forwards;
+    max-width: 48ch;
+    margin-top: var(--space-2);
+    color: var(--color-text-secondary);
+    font-size: 1rem;
+    animation: title-entry 650ms var(--ease-out) 100ms both;
 }
-
-@keyframes shine {
-    from { background-position: -200% center; }
-    to { background-position: 200% center; }
-}
-
-@keyframes fadeInDown {
-    from { opacity: 0; transform: translateY(-30px); }
+@keyframes title-entry {
+    from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeInBlur {
-    from { opacity: 0; filter: blur(4px); transform: translateY(-10px); }
-    to { opacity: 1; filter: blur(0); transform: translateY(0); }
-}
-
-@keyframes float {
-    50% { transform: translateY(-5px); }
-}
-
-@media (max-width: 768px) {
-    .animated-title span { font-size: clamp(0.9rem, 2.5vw, 1.5rem); word-spacing: 0.15em; }
 }

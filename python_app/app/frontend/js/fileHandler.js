@@ -1,4 +1,4 @@
-import { analyzePcap } from './pcapAnalyzer.js';
+import { analyzePcap, isAnalysisInProgress } from './pcapAnalyzer.js';
 import { showErrorMessage } from './modal.js';
 
 export function initializeFileHandlers() {
@@ -28,6 +28,7 @@ function preventDefaults(e) {
 }
 
 function highlight() {
+    if (isAnalysisInProgress()) return;
     document.getElementById('dropZone').classList.add('drag-over');
 }
 
@@ -48,7 +49,7 @@ function handleFileSelect(e) {
 }
 
 function handleFile(file) {
-    if (!file) return;
+    if (!file || isAnalysisInProgress()) return;
 
     if (!file.name.toLowerCase().endsWith('.pcap') && !file.name.toLowerCase().endsWith('.pcapng')) {
         showErrorMessage('Please select a PCAP or PCAPNG file');

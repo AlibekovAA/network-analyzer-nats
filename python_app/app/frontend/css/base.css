@@ -4,56 +4,76 @@
 @import "social-icons.css";
 
 :root {
-    --color-primary: #1a73e8;
-    --color-primary-dark: #1557b0;
-    --color-background: #f8f9fa;
-    --color-error: #dc3545;
-    --color-success: #28a745;
-    --color-text: #202124;
-    --color-text-secondary: #5f6368;
-    --color-border: #e1e4e8;
-
-    --color-error-bg: #fff5f5;
-    --color-error-border: #feb2b2;
-    --color-success-bg: #f0fff4;
-    --color-success-border: #9ae6b4;
-    --color-hover-bg: rgba(26, 115, 232, 0.05);
-    --color-modal-overlay: rgba(0, 0, 0, 0.5);
+    --color-primary: #16645b;
+    --color-primary-dark: #104d46;
+    --color-accent: #b89b62;
+    --color-glow: #73b7a2;
+    --color-background: #f5f4ef;
     --color-white: #ffffff;
-    --color-shimmer: rgba(255, 255, 255, 0.2);
-
-    --color-button-close: #ff605c;
-    --color-button-minimize: #ffbd44;
-    --color-button-maximize: #00ca4e;
-
-    --space-unit: 0.5rem;
-    --radius-default: 8px;
-    --radius-lg: 16px;
-    --shadow-default: 0 4px 6px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    --color-text: #202c2a;
+    --color-text-secondary: #586862;
+    --color-border: #d6ded7;
+    --color-hover-bg: #eaf2ed;
+    --color-error: #a12c32;
+    --color-error-bg: #fff1ef;
+    --color-error-border: #edc4bf;
+    --color-modal-overlay: rgb(19 35 31 / 55%);
+    --space-1: 0.5rem;
+    --space-2: 1rem;
+    --space-3: 1.5rem;
+    --space-4: 2rem;
+    --space-6: 3rem;
+    --radius-default: 6px;
+    --radius-lg: 12px;
+    --control-size: 2.75rem;
+    --motion-fast: 160ms;
+    --motion-normal: 240ms;
+    --ease-out: cubic-bezier(0.2, 0.7, 0.3, 1);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-
+html { height: 100%; overflow: hidden; }
 body {
-    min-height: 100vh;
     height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
     font: 16px/1.6 'Segoe UI', system-ui, sans-serif;
     background: var(--color-background);
     color: var(--color-text);
-    overflow: hidden;
 }
-
+button, input { font: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 4px; }
+[hidden] { display: none; }
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    border: 0;
+    clip-path: inset(50%);
+    overflow: hidden;
+    white-space: nowrap;
+}
 .container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    max-width: 90vw;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: clamp(var(--space-2), 3vh, var(--space-4));
+    height: 100%;
+    width: calc(100% - 8rem);
+    max-width: 64rem;
     margin: 0 auto;
-    padding: min(calc(var(--space-unit) * 4), 4vh);
-    overflow: hidden;
+    padding: clamp(var(--space-2), 3vh, var(--space-4)) 0;
+}
+body:has(.results-modal[open]) { overflow: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+    .title-ready, .subtitle, .upload-container, .upload-box::before, .footer, .social-icon,
+    .results-modal[open], .results-modal::backdrop, .results-modal-content, .results-content, .spinner { animation: none; }
+    .upload-box, .upload-icon svg, .upload-button, .close-button, .info-icon, .slider, .slider::before,
+    .social-icon a, .social-icon .tooltip, .social-icon .filled { transition: none; }
 }
 
-@media (max-width: 768px) { .container { max-width: 95vw; padding: min(calc(var(--space-unit) * 2), 2vw); } }
-
-@media (max-width: 480px) { .container { max-width: 100vw; padding: calc(var(--space-unit) * 1); } }
+@media (max-width: 600px) {
+    .container { width: calc(100% - 4.5rem); margin-left: var(--space-2); }
+}

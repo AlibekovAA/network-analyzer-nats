@@ -6,10 +6,12 @@ from app.backend.routes import router
 from app.backend.lifespan import lifespan
 from app.backend.dependencies import init_app
 from app.backend.exception_handlers import error_handler
+from app.backend.security import SecurityMiddleware
 
 
 app = FastAPI(lifespan=lifespan)
 init_app(app)
+app.add_middleware(SecurityMiddleware)
 
 app.mount("/static", StaticFiles(directory="app/frontend"), name="static")
 

@@ -25,8 +25,9 @@ func main() {
 		return
 	}
 
-	pcapAnalyzer := pcap.New(log)
+	pcapAnalyzer := pcap.New()
 	service := analyzer.NewService(log, pcapAnalyzer)
+	defer service.Close()
 
 	if err := setupSubscriptions(natsClient, service); err != nil {
 		log.Printf("Failed to setup subscriptions: %v", err)

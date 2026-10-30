@@ -1,43 +1,39 @@
 .info-container {
     position: absolute;
-    top: calc(var(--space-unit) * 5);
-    right: calc(var(--space-unit) * 2);
-    width: 24px;
-    height: 24px;
-    margin: 0;
-    z-index: 100;
+    top: var(--space-2);
+    right: var(--space-2);
+    z-index: 2;
 }
-
 .info-icon {
-    width: 24px;
-    height: 24px;
-    background: var(--color-primary);
-    color: var(--color-white);
+    display: grid;
+    place-items: center;
+    width: var(--control-size);
+    height: var(--control-size);
+    border: 1px solid var(--color-border);
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font: bold 14px/1 sans-serif;
-    transition: transform 0.2s ease;
+    background: var(--color-white);
+    color: var(--color-primary);
+    font-weight: 600;
+    transition: background-color var(--motion-fast);
 }
-
-.tooltip {
+.info-icon:hover { background: var(--color-hover-bg); }
+.info-icon:active { transform: translateY(1px); }
+.info-container .tooltip {
     position: absolute;
-    top: 100%;
+    top: calc(100% + var(--space-1));
     right: 0;
-    margin-top: 8px;
+    width: max-content;
+    max-width: min(16rem, 70vw);
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-default);
     background: var(--color-white);
     color: var(--color-text);
-    padding: 8px 12px;
-    border-radius: var(--radius-default);
-    box-shadow: var(--shadow-default);
-    white-space: nowrap;
-    font-size: 14px;
-    display: none;
-    z-index: 200;
+    font-size: 0.875rem;
+    visibility: hidden;
+    opacity: 0;
 }
-
-.info-icon:hover + .tooltip,
-.info-icon:focus + .tooltip {
-    display: block;
+.info-container:hover .tooltip, .info-container:focus-within .tooltip {
+    visibility: visible;
+    opacity: 1;
 }

@@ -12,10 +12,11 @@ export function initializeModal() {
         closeResults();
     });
 
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && resultsModal.classList.contains('show')) {
-            closeResults();
-        }
+    resultsModal.addEventListener('close', () => {
+        if (document.activeElement !== document.body) return;
+        const fileInput = document.getElementById('pcapFile');
+        const target = fileInput.disabled ? document.querySelector('.info-icon') : fileInput;
+        target.focus();
     });
 }
 
@@ -24,11 +25,12 @@ export function showErrorMessage(message) {
     const modalBody = resultsModal.querySelector('.results-modal-body');
 
     modalBody.innerHTML = `
-        <div class="error-message">
-            <p>${message}</p>
+        <div class="error-message" role="alert">
+            <p></p>
         </div>
     `;
-    resultsModal.classList.add('show');
+    modalBody.querySelector('.error-message p').textContent = message;
+    if (!resultsModal.open) resultsModal.showModal();
 }
 
 export function showLoadingMessage() {
@@ -36,12 +38,12 @@ export function showLoadingMessage() {
     const modalBody = resultsModal.querySelector('.results-modal-body');
 
     modalBody.innerHTML = `
-        <div class="loading">
-            <div class="spinner"></div>
+        <div class="loading" role="status">
+            <div class="spinner" aria-hidden="true"></div>
             <p>Loading...</p>
         </div>
     `;
-    resultsModal.classList.add('show');
+    if (!resultsModal.open) resultsModal.showModal();
 }
 
 export function showSuccessMessage(result) {
@@ -64,30 +66,36 @@ export function showSuccessMessage(result) {
     modalBody.innerHTML = `
         <div class="view-controls">
             <label class="switch">
-                <input type="checkbox" id="viewToggle">
-                <span class="slider"></span>
+                <input type="checkbox" id="viewToggle" aria-labelledby="viewLabel">
+                <span class="slider" aria-hidden="true"></span>
             </label>
-            <span class="view-label">Подробный отчет</span>
+            <label class="view-label" id="viewLabel" for="viewToggle">Detailed report</label>
         </div>
         <div class="results-content">
-            <pre class="summary-view">${JSON.stringify(summaryView, null, 2)}</pre>
-            <pre class="detailed-view" style="display: none">${JSON.stringify(result, null, 2)}</pre>
+            <pre class="summary-view"></pre>
+            <pre class="detailed-view" hidden></pre>
         </div>
     `;
 
     const viewToggle = modalBody.querySelector('#viewToggle');
     const summaryViewEl = modalBody.querySelector('.summary-view');
     const detailedViewEl = modalBody.querySelector('.detailed-view');
+    summaryViewEl.textContent = JSON.stringify(summaryView, null, 2);
+    let detailedReportReady = false;
 
     viewToggle.addEventListener('change', () => {
-        summaryViewEl.style.display = viewToggle.checked ? 'none' : 'block';
-        detailedViewEl.style.display = viewToggle.checked ? 'block' : 'none';
+        if (viewToggle.checked && !detailedReportReady) {
+            detailedViewEl.textContent = JSON.stringify(result, null, 2);
+            detailedReportReady = true;
+        }
+        summaryViewEl.hidden = viewToggle.checked;
+        detailedViewEl.hidden = !viewToggle.checked;
     });
 
-    resultsModal.classList.add('show');
+    if (!resultsModal.open) resultsModal.showModal();
 }
 
 export function closeResults() {
     const resultsModal = document.getElementById('results');
-    resultsModal.classList.remove('show');
+    resultsModal.close();
 }

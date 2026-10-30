@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, List, Literal
+from typing import Literal
 from pydantic import BaseModel
 
 
@@ -9,11 +9,11 @@ class NetworkPacket(BaseModel):
     protocol: str
     size: int
     timestamp: str
-    additional_info: Optional[dict] = None
+    additional_info: dict | None = None
 
 
 class NetworkAnalysisResult(BaseModel):
-    packets: List[NetworkPacket]
+    packets: list[NetworkPacket]
     summary: dict
 
 
@@ -22,12 +22,11 @@ class ChunkInfo:
     number: int
     data: bytes
     total_chunks: int
-    encoding: Literal["hex", "base64"]
 
 
 class AnalysisMessage(BaseModel):
     analysis_id: str
-    chunk_number: Optional[int] = None
+    chunk_number: int | None = None
     total_chunks: int
-    data: Optional[str] = None
+    data: str | None = None
     encoding: Literal["hex", "base64"]

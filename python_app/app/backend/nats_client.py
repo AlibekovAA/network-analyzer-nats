@@ -1,7 +1,4 @@
-from typing import Callable, Awaitable, Dict
-
 from nats.aio.client import Client as NATS, Msg
-from nats.aio.subscription import Subscription
 
 from app.backend.log import get_logger
 
@@ -13,7 +10,6 @@ class NATSClient:
         self.server_url = server_url
         self.client = NATS()
         self._connected = False
-        self._subscribers: Dict[str, Subscription] = {}
 
     async def connect(self) -> None:
         if self._connected:
@@ -33,16 +29,6 @@ class NATSClient:
         except Exception as e:
             logger.error(f"[NATS] Connection failed: {str(e)}")
             raise
-
-    async def subscribe(self, subject: str, callback: Callable[[Msg], Awaitable[None]]) -> Subscription:
-        if not self.is_connected():
-            await self.connect()
-
-        if subject not in self._subscribers:
-            sub = await self.client.subscribe(subject, cb=callback)
-            self._subscribers[subject] = sub
-            return sub
-        return self._subscribers[subject]
 
     async def publish(self, subject: str, message: bytes) -> None:
         if not self.is_connected():

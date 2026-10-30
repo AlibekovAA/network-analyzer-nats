@@ -21,12 +21,12 @@
         <main class="main">
             <div class="upload-container">
                 <div class="info-container">
-                    <div class="info-icon">?</div>
-                    <div class="tooltip">Supports .pcap files up to 1GB</div>
+                    <button class="info-icon" type="button" aria-label="Supported capture formats" aria-describedby="formatHint">?</button>
+                    <div class="tooltip" id="formatHint" role="tooltip">PCAP / PCAPNG · Up to 1 GB</div>
                 </div>
                 <div class="upload-box" id="dropZone">
                     <div class="upload-icon">
-                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        <svg aria-hidden="true" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                             <polyline points="17 8 12 3 7 8" />
@@ -38,24 +38,25 @@
                         <p>or</p>
                         <label class="upload-button">
                             Choose file
-                            <input type="file" id="pcapFile" accept=".pcap" hidden>
+                            <input class="visually-hidden" type="file" id="pcapFile" accept=".pcap,.pcapng">
                         </label>
                     </div>
                 </div>
-                <div class="results-modal" id="results">
+                <p class="visually-hidden" id="uploadStatus" role="status"></p>
+                <dialog class="results-modal" id="results" aria-labelledby="resultsTitle">
                     <div class="results-modal-content">
                         <div class="results-modal-header">
-                            <h2>Results</h2>
-                            <button class="close-button">×</button>
+                            <h2 id="resultsTitle">Results</h2>
+                            <button class="close-button" type="button" aria-label="Close results" autofocus>×</button>
                         </div>
                         <div class="results-modal-body"></div>
                     </div>
-                </div>
+                </dialog>
             </div>
         </main>
 
         <footer class="footer">
-            <p>© 2025 Network Packet Analyzer. All rights reserved.</p>
+            <p>© 2026 Network Packet Analyzer. All rights reserved.</p>
         </footer>
     </div>
 
@@ -93,16 +94,6 @@
             <div class="tooltip">VKontakte</div>
         </li>
     </ul>
-
-    <div id="results" class="results-modal">
-        <div class="results-modal-content">
-            <div class="results-modal-header">
-                <h2>Results</h2>
-                <button class="close-button">×</button>
-            </div>
-            <div class="results-modal-body"></div>
-        </div>
-    </div>
 
     <script type="module" src="static/js/analyzer.js"></script>
 </body>

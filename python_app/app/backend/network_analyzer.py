@@ -1,7 +1,7 @@
 import json
 import base64
 import uuid
-from typing import BinaryIO, List
+from typing import BinaryIO
 import asyncio
 
 from app.backend.models.analysis import NetworkAnalysisResult, ChunkInfo, AnalysisMessage
@@ -43,19 +43,24 @@ class NetworkAnalyzer:
 
     async def analyze_pcap(self, pcap_file: BinaryIO) -> NetworkAnalysisResult:
         analysis_id = str(uuid.uuid4())
-        chunks = self._split_pcap(pcap_file)
-        total_chunks = len(chunks)
+        start_position = await asyncio.to_thread(pcap_file.tell)
+        end_position = await asyncio.to_thread(pcap_file.seek, 0, 2)
+        await asyncio.to_thread(pcap_file.seek, start_position)
+        file_size = end_position - start_position
+        if file_size < 24:
+            raise ValueError("Invalid PCAP file: too small")
+        total_chunks = (file_size + self.chunk_size - 1) // self.chunk_size
 
         logger.info(f"[Analysis] Starting analysis {analysis_id} with {total_chunks} chunks")
 
         start_msg = AnalysisMessage(analysis_id=analysis_id, total_chunks=total_chunks, encoding=DEFAULT_ENCODING)
         await self.nats_client.publish("network.analysis.start", start_msg.model_dump_json().encode())
 
-        chunk_tasks = [
-            self._process_chunk(ChunkInfo(i, chunk, total_chunks, DEFAULT_ENCODING), analysis_id)
-            for i, chunk in enumerate(chunks)
-        ]
-        await asyncio.gather(*chunk_tasks)
+        for chunk_number in range(total_chunks):
+            chunk = await asyncio.to_thread(pcap_file.read, self.chunk_size)
+            if not chunk:
+                raise ValueError("PCAP file ended before all chunks were read")
+            await self._process_chunk(ChunkInfo(chunk_number, chunk, total_chunks), analysis_id)
 
         finish_msg = AnalysisMessage(analysis_id=analysis_id, total_chunks=total_chunks, encoding=DEFAULT_ENCODING)
         final_response = await self.nats_client.request(
@@ -65,12 +70,3 @@ class NetworkAnalyzer:
         )
 
         return NetworkAnalysisResult(**json.loads(final_response.data))
-
-    def _split_pcap(self, pcap_file: BinaryIO) -> List[bytes]:
-        content = pcap_file.read()
-        if len(content) < 24:
-            raise ValueError("Invalid PCAP file: too small")
-
-        chunks = [content[i:i + self.chunk_size] for i in range(0, len(content), self.chunk_size)]
-        logger.info(f"[Analysis] Split file into {len(chunks)} chunks")
-        return chunks

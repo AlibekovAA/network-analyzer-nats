@@ -1,4 +1,4 @@
-from typing import cast, Optional
+from typing import cast
 
 from fastapi import FastAPI
 
@@ -16,7 +16,7 @@ async def get_analyzer() -> NetworkAnalyzer:
     return get_app_state().network_analyzer
 
 
-app: Optional[FastAPI] = None
+app: FastAPI | None = None
 
 
 def init_app(application: FastAPI) -> None:

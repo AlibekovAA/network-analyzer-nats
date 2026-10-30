@@ -16,3 +16,11 @@ Release/
 .DS_Store
 *.db
 *.pdf
+.env
+.env.*
+!.env.example
+AGENTS.md
+.venv/
+.ruff_cache/
+.mypy_cache/
+__pycache__/

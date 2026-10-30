@@ -4,8 +4,6 @@ services:
       context: ../../go_app
       dockerfile: Dockerfile
       target: production
-      cache_from:
-        - go_app:cache
     container_name: go_app
     depends_on:
       - nats
